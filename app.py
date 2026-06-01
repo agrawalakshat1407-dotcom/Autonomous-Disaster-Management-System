@@ -20,6 +20,13 @@ if os.path.exists(".env"):
                 key, val = line.split("=", 1)
                 os.environ[key.strip()] = val.strip()
 
+# Also load variables from st.secrets into os.environ for Streamlit Cloud deployment
+try:
+    for key in st.secrets.keys():
+        os.environ[key] = str(st.secrets[key])
+except Exception:
+    pass
+
 DEPARTMENT_ROUTING_MAP = {
     "Emergency Response": os.environ.get("EMAIL_EMERGENCY_RESPONSE", ""),
     "Civil Defense": os.environ.get("EMAIL_CIVIL_DEFENSE", ""),
