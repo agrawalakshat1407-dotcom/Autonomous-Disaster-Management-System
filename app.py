@@ -1,7 +1,10 @@
 import streamlit as st
 import random
 import datetime
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
+
+# Indian Standard Time (IST) timezone offset
+IST = timezone(timedelta(hours=5, minutes=30))
 import hashlib
 import requests
 import numpy as np
@@ -252,7 +255,7 @@ def generate_mock_data(loc_name):
         headlines = safe_headlines
         
     # Get current ingestion time
-    ingest_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    ingest_time = datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S")
     
     # Return everything as a standard Python dictionary
     return {
@@ -626,8 +629,7 @@ with title_col:
     st.markdown("**Real-time Environmental Hazard Monitoring and Automatic Response Pipeline**")
 
 with time_col:
-    from datetime import datetime
-    current_time_str = datetime.now().strftime("%b %d, %Y\n\n%I:%M %p")
+    current_time_str = datetime.now(IST).strftime("%b %d, %Y\n\n%I:%M %p")
     st.markdown(f"<div style='text-align: right; padding-top: 10px; color: #ff4b4b;'>⏱️ <b>SYSTEM TIME</b><br><h3>{current_time_str}</h3></div>", unsafe_allow_html=True)
 
 # Visual Pipeline Node Visualizer (Step-by-Step Flowcard)
