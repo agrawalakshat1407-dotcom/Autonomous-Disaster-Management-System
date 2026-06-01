@@ -1114,7 +1114,11 @@ if st.session_state['ingested']:
                             lines.append(f"• {b_clean}")
                     protocol_body = "\n\n".join(lines) if lines else (raw_text if raw_text else "⚠️ No suggestions generated.")
                 except Exception as e:
-                    protocol_body = f"⚠️ **LLM Generation Failed**: {str(e)}\n\nPlease ensure your Gemini API key is valid."
+                    key_status = "None"
+                    curr_key = os.environ.get("GEMINI_API_KEY", "")
+                    if curr_key:
+                        key_status = f"Loaded (starts with {curr_key[:6]}, length={len(curr_key)})"
+                    protocol_body = f"⚠️ **LLM Generation Failed**: {str(e)}\n\nDebug: Key is {key_status}. Please ensure your Gemini API key is valid in Streamlit Secrets."
 
                 # ── GENERATE EMERGENCY PROTOCOL DOCUMENT ───────────────
                 # All dynamic variables (alert_status_text, protocol_body) are
