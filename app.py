@@ -9,19 +9,29 @@ import google.generativeai as genai
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import os
+
+# Load variables from local .env file
+if os.path.exists(".env"):
+    with open(".env", "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                key, val = line.split("=", 1)
+                os.environ[key.strip()] = val.strip()
 
 DEPARTMENT_ROUTING_MAP = {
-    "Emergency Response": "snmangal786@gmail.com",
-    "Civil Defense": "rachanamangal357@gmail.com",
-    "Public Works": "agrawalakshat1407@gmail.com"
+    "Emergency Response": os.environ.get("EMAIL_EMERGENCY_RESPONSE", ""),
+    "Civil Defense": os.environ.get("EMAIL_CIVIL_DEFENSE", ""),
+    "Public Works": os.environ.get("EMAIL_PUBLIC_WORKS", "")
 }
 
 def send_emergency_email(to_address, content, subject="⚠️ CRITICAL DISASTER MANAGEMENT PROTOCOL DISPATCH"):
     # Setup your local/testing SMTP credentials (using a placeholder or st.secrets for safety)
     smtp_server = "smtp.gmail.com"
     smtp_port = 465
-    sender_email = "agrawalakshat1407@gmail.com"
-    sender_password = "dhxefkoiirnjbijz"
+    sender_email = os.environ.get("SMTP_SENDER_EMAIL", "")
+    sender_password = os.environ.get("SMTP_PASSWORD", "")
     
     # Create message container
     msg = MIMEMultipart()
@@ -309,7 +319,7 @@ def fetch_live_newsdata(city_name, hazard_type):
     try:
         url = "https://newsdata.io/api/1/news"
         params = {
-            "apikey":   "pub_5226ca9cb1f64b96a11f97f919f79b2e",
+            "apikey":   os.environ.get("NEWSDATA_API_KEY", ""),
             "q":        q_str,
             "language": "en",
             "category": "environment"
@@ -341,7 +351,7 @@ def run_llm_router_node(current_risk_score, weather_telemetry):
     Dynamically evaluate routing using LLM.
     Returns one of: "Emergency Response", "Civil Defense", "Public Works".
     """
-    api_key = 'AIzaSyCSXTD5dsQboy1tEhXrQNXjUx3anjhCDg4'
+    api_key = os.environ.get("GEMINI_API_KEY", "")
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key={api_key}"
     
     prompt = (
@@ -511,7 +521,7 @@ def fetch_and_history(city):
         geo_params = {
             "q": f"{city},IN",
             "limit": 5,
-            "appid": "3f5a6677101df195e04da717b7cdf1e7"
+            "appid": os.environ.get("OPENWEATHER_API_KEY", "")
         }
         geo_resp = requests.get(geo_url, params=geo_params, timeout=8)
         results = geo_resp.json()
@@ -539,13 +549,13 @@ def fetch_and_history(city):
             params = {
                 "lat": lat,
                 "lon": lon,
-                "appid": "3f5a6677101df195e04da717b7cdf1e7",
+                "appid": os.environ.get("OPENWEATHER_API_KEY", ""),
                 "units": "metric"
             }
         else:
             params = {
                 "q": f"{city},IN",
-                "appid": "3f5a6677101df195e04da717b7cdf1e7",
+                "appid": os.environ.get("OPENWEATHER_API_KEY", ""),
                 "units": "metric"
             }
 
@@ -1002,7 +1012,7 @@ if st.session_state['ingested']:
                     else:
                         rules_context = "\n".join([f"- {r}" for r in active_rules]) if active_rules else "No active constraints."
                     
-                    api_key = 'AIzaSyCSXTD5dsQboy1tEhXrQNXjUx3anjhCDg4'
+                    api_key = os.environ.get("GEMINI_API_KEY", "")
                     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key={api_key}"
                     
                     status_instruction = ""
